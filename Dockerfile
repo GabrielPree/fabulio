@@ -1,7 +1,7 @@
-# Estágio 1: Build
-FROM openjdk:25-jdk-slim AS build
+# Estágio 1: Build com Java 25 (Eclipse Temurin)
+FROM eclipse-temurin:25-jdk AS build
 
-# Instalar Maven (já que não temos o mvnw com permissão garantida)
+# Instalar Maven
 RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório de trabalho
@@ -18,7 +18,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Estágio 2: Runtime (imagem final menor)
-FROM openjdk:25-jdk-slim
+FROM eclipse-temurin:25-jdk
 
 # Definir diretório de trabalho
 WORKDIR /app
