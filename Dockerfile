@@ -14,8 +14,8 @@ RUN mvn dependency:go-offline -B
 # Copiar o código fonte
 COPY src ./src
 
-# Build do projeto (pular testes para agilizar)
-RUN mvn package -DskipTests
+# Build do projeto com encoding UTF-8
+RUN mvn package -DskipTests -Dproject.build.sourceEncoding=UTF-8
 
 # Estágio 2: Runtime (imagem final menor)
 FROM eclipse-temurin:25-jdk
