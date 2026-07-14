@@ -1,5 +1,6 @@
 package br.com.fabulio.Fabulio.repository;
 
+import br.com.fabulio.Fabulio.dto.SerieResumoDTO;
 import br.com.fabulio.Fabulio.model.Categoria;
 import br.com.fabulio.Fabulio.model.Episodio;
 import br.com.fabulio.Fabulio.model.Serie;
@@ -13,15 +14,22 @@ import java.util.Optional;
 public interface SerieRepository  extends JpaRepository<Serie, Long> {
     Optional<Serie> findByTituloContainingIgnoreCase(String nomeSerie);
 
-    @Query("SELECT s FROM Serie s ORDER BY s.avaliacao DESC LIMIT 40")
-    List<Serie> melhoresSeries();
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.SerieResumoDTO(s.id, s.titulo, s.avaliacao, s.poster) " +
+            "FROM Serie s ORDER BY s.avaliacao DESC LIMIT 40")
+    List<SerieResumoDTO> melhoresSeries();
 
-    @Query("SELECT s FROM Serie s JOIN s.generos g WHERE g = :categoria")
-    List<Serie> seriesGenero(@Param("categoria") Categoria categoria);
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.SerieResumoDTO(s.id, s.titulo, s.avaliacao, s.poster) " +
+            "FROM Serie s JOIN s.generos g WHERE g = :categoria")
+    List<SerieResumoDTO> seriesGenero(@Param("categoria") Categoria categoria);
 
-    @Query("SELECT s FROM Serie s " + "JOIN s.episodios e " + "GROUP BY s " +
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.SerieResumoDTO(s.id, s.titulo, s.avaliacao, s.poster) " +
+            "FROM Serie s JOIN s.episodios e " +
+            "GROUP BY s.id, s.titulo, s.avaliacao, s.poster " +
             "ORDER BY MAX(e.dataLancamento) DESC LIMIT 40")
-    List<Serie> seriesLancamentos();
+    List<SerieResumoDTO> seriesLancamentos();
+
+    @Query("SELECT s FROM Serie s WHERE s.id = :id")
+    Optional<Serie> findSerieCompletaPorId(@Param("id") Long id);
 
     @Query("SELECT e FROM Serie s JOIN s.episodios e WHERE s.id = :id AND e.temporada = :numero")
     List<Episodio> obterEpisodiosPorTemporada(Long id, Integer numero);
@@ -29,6 +37,6 @@ public interface SerieRepository  extends JpaRepository<Serie, Long> {
     @Query("SELECT e FROM Serie s JOIN s.episodios e WHERE s.id = :id ORDER BY e.avaliacao DESC LIMIT 5")
     List<Episodio> obterTopEpisodios(Long id);
 
-    @Query("SELECT s FROM Serie s WHERE s.anoLancamento IS NULL OR s.anoLancamento = ''")
-    List<Serie> findSeriesSemAnoLancamento();
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.SerieResumoDTO(s.id, s.titulo, s.avaliacao, s.poster) FROM Serie s")
+    List<SerieResumoDTO> todasSeries();
 }

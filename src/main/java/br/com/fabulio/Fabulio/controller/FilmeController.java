@@ -1,6 +1,7 @@
 package br.com.fabulio.Fabulio.controller;
 
 import br.com.fabulio.Fabulio.dto.FilmeDTO;
+import br.com.fabulio.Fabulio.dto.FilmeResumoDTO;
 import br.com.fabulio.Fabulio.service.FilmeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +19,13 @@ public class FilmeController {
     private FilmeService servico;
 
     @GetMapping
-    public List<FilmeDTO> obterFilmes() {
-        return servico.obterTodosFilmes();
-    }
+    public List<FilmeResumoDTO> obterFilmes() {return servico.obterTodosFilmes();}
 
     @GetMapping("/melhores")
-    public List<FilmeDTO> obterMelhoresFilmes() {return servico.obterMelhoresFilmes();}
+    public List<FilmeResumoDTO> obterMelhoresFilmes() {return servico.obterMelhoresFilmes();}
 
     @GetMapping("/lancamentos")
-    public List<FilmeDTO> obterLancamentos() {
+    public List<FilmeResumoDTO> obterLancamentos() {
         return servico.obterLancamentos();
     }
 
@@ -34,7 +33,7 @@ public class FilmeController {
     public FilmeDTO obterPorId(@PathVariable Long id) {return servico.obterFilmeID(id);}
 
     @GetMapping("/categoria/{nomeGenero}")
-    public List<FilmeDTO> obterCategoriasPorGenero(@PathVariable String nomeGenero) {
+    public List<FilmeResumoDTO> obterCategoriasPorGenero(@PathVariable String nomeGenero) {
         return servico.obterFilmesGenero(nomeGenero);}
 
 }

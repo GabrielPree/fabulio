@@ -2,6 +2,7 @@ package br.com.fabulio.Fabulio.service;
 
 import br.com.fabulio.Fabulio.dto.EpisodioDTO;
 import br.com.fabulio.Fabulio.dto.SerieDTO;
+import br.com.fabulio.Fabulio.dto.SerieResumoDTO;
 import br.com.fabulio.Fabulio.exception.InvalidParameterException;
 import br.com.fabulio.Fabulio.exception.ResourceNotFoundException;
 import br.com.fabulio.Fabulio.model.Categoria;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,52 +20,34 @@ public class SerieService {
     @Autowired
     private SerieRepository repositorio;
 
-    private List<SerieDTO> converteDados(List<Serie> series){
-      return  series.stream()
-                .map(s -> new SerieDTO(
-                        s.getId(),
-                        s.getTitulo(),
-                        s.getTotalTemporadas(),
-                        s.getAvaliacao(),
-                        s.getGeneros(),
-                        s.getAtores(),
-                        s.getPoster(),
-                        s.getAnoLancamento(),
-                        s.getSinopse(),
-                        s.getBackground(),
-                        s.getLogo()
-                ))
-                .collect(Collectors.toList());
-    }
-
-    public List<SerieDTO> todasSeries() {
-        List<Serie> series = repositorio.findAll();
+    public List<SerieResumoDTO> obterTodasSeries() {
+        List<SerieResumoDTO> series = repositorio.todasSeries();
 
         if (series.isEmpty()) {
             throw new ResourceNotFoundException("Nenhuma série encontrada no sistema");
         }
 
-        return converteDados(series);
+        return series;
     }
 
-    public List<SerieDTO> obterMelhoresSeries() {
-        List<Serie> series = repositorio.melhoresSeries();
+    public List<SerieResumoDTO> obterMelhoresSeries() {
+        List<SerieResumoDTO> series = repositorio.melhoresSeries();
 
         if (series.isEmpty()) {
             throw new ResourceNotFoundException("Nenhuma série com avaliação alta encontrada");
         }
 
-        return converteDados(series);
+        return series;
     }
 
-    public List<SerieDTO> obterLancamentos() {
-        List<Serie> series = repositorio.seriesLancamentos();
+    public List<SerieResumoDTO> obterLancamentos() {
+        List<SerieResumoDTO> series = repositorio.seriesLancamentos();
 
         if (series.isEmpty()) {
             throw new ResourceNotFoundException("Nenhum lançamento de série encontrado no momento");
         }
 
-        return converteDados(series);
+        return series;
     }
 
 
@@ -74,22 +56,10 @@ public class SerieService {
             throw new InvalidParameterException("ID da série deve ser um valor positivo");
         }
 
-        Serie serie = repositorio.findById(id)
+        Serie serie = repositorio.findSerieCompletaPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Série", id));
 
-        return new SerieDTO(
-                serie.getId(),
-                serie.getTitulo(),
-                serie.getTotalTemporadas(),
-                serie.getAvaliacao(),
-                serie.getGeneros(),
-                serie.getAtores(),
-                serie.getPoster(),
-                serie.getAnoLancamento(),
-                serie.getSinopse(),
-                serie.getBackground(),
-                serie.getLogo()
-        );
+        return new SerieDTO(serie);
     }
 
     public List<EpisodioDTO> obterTodasTemporadas(Long id) {
@@ -145,7 +115,7 @@ public class SerieService {
         return episodios;
     }
 
-    public List<SerieDTO> obterSeriesGenero(String nomeGenero) {
+    public List<SerieResumoDTO> obterSeriesGenero(String nomeGenero) {
         if (nomeGenero == null || nomeGenero.trim().isEmpty()) {
             throw new InvalidParameterException("O nome do gênero não pode ser vazio");
         }
@@ -157,13 +127,13 @@ public class SerieService {
             throw new InvalidParameterException("Gênero inválido: " + nomeGenero);
         }
 
-        List<Serie> series = repositorio.seriesGenero(categoria);
+        List<SerieResumoDTO> series = repositorio.seriesGenero(categoria);
 
         if (series.isEmpty()) {
             throw new ResourceNotFoundException("Nenhuma série encontrada para o gênero: " + nomeGenero);
         }
 
-        return converteDados(series);
+        return series;
     }
 
     public List<EpisodioDTO> obterTopEpisodios(Long id) {

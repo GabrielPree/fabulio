@@ -1,5 +1,6 @@
 package br.com.fabulio.Fabulio.repository;
 
+import br.com.fabulio.Fabulio.dto.FilmeResumoDTO;
 import br.com.fabulio.Fabulio.model.Categoria;
 import br.com.fabulio.Fabulio.model.Filme;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,12 +14,21 @@ public interface FilmeRepository extends JpaRepository<Filme, Long> {
 
     Optional<Filme> findByTituloContainingIgnoreCase(String nomeFilme);
 
-    @Query("SELECT f FROM Filme f ORDER BY f.avaliacao DESC LIMIT 40")
-    List<Filme> obterMelhoresFilmes();
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.FilmeResumoDTO(f.id, f.titulo, f.avaliacao, f.poster) " +
+            "FROM Filme f ORDER BY f.avaliacao DESC LIMIT 40")
+    List<FilmeResumoDTO> obterMelhoresFilmes();
 
-    @Query("SELECT f FROM Filme f JOIN f.generos g WHERE g = :categoria")
-    List<Filme> filmesGenero(@Param("categoria") Categoria categoria);
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.FilmeResumoDTO(f.id, f.titulo, f.avaliacao, f.poster) " +
+            "FROM Filme f JOIN f.generos g WHERE g = :categoria")
+    List<FilmeResumoDTO> filmesGenero(@Param("categoria") Categoria categoria);
 
-    @Query("SELECT f FROM Filme f ORDER BY f.anoLancamento DESC LIMIT 40")
-    List<Filme> filmesLancamentos();
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.FilmeResumoDTO(f.id, f.titulo, f.avaliacao, f.poster) " +
+            "FROM Filme f ORDER BY f.anoLancamento DESC LIMIT 40")
+    List<FilmeResumoDTO> filmesLancamentos();
+
+    @Query("SELECT f FROM Filme f WHERE f.id = :id")
+    Optional<Filme> findFilmeCompletoPorId(@Param("id") Long id);
+
+    @Query("SELECT new br.com.fabulio.Fabulio.dto.FilmeResumoDTO(f.id, f.titulo, f.avaliacao, f.poster) FROM Filme f")
+    List<FilmeResumoDTO> todosFilmes();
 }
